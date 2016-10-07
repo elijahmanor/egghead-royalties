@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+	<head>
+		<style type="text/css">
+			html { background-color: #2d2d39; color: white; margin: 1em; }
+			.hero { margin-bottom: 2em; }
+			.hero .title {
+				font-size: 28px;
+				margin-bottom: 10px;
+				background-image: url('./header.svg');
+				background-repeat: no-repeat;
+				text-indent: 180px;
+			}
+			.field { font-size: 20px; margin-bottom: 1em; }
+			.field label { width: 175px; display: inline-block; }
+			.field span { color: #b7b7b7; display: block; margin-left: 180px; font-style: italic; font-size: 16px; }
+			.field input, .field button { font-size: 20px; margin-bottom: 0.5em; }
+			.status { display: inline-block; color: #6fab4a; }
+			textarea { display: none; width: 300px; height: 100px; }
+		</style>
+	</head>
+	<body>
+		<div>
+			<div class="hero"><div class="title">Options</div></div>
+			<div class="field">
+				<label for="interval">Interval (ms)</label>
+				<input id="interval" type="text" placeholder="interval" />
+				<span>Timer interval to check for updates</span>
+			</div>
+			<div class="field">
+				<label for="notify">Notify</label>
+				<input id="notify" type="checkbox"/>
+				<span>Show a notification when the royalty amount changes</span>
+			</div>
+			<div class="field">
+				<label for="threshold">Threshold</label>
+				<input id="threshold" type="text" placeholder="threshold" />
+				<span>Amount difference to initiate notification</span>
+			</div>
+			<div class="field">
+				<label for="sound">Sound</label>
+				<input id="sound" type="checkbox" />
+				<span>Play a sound when royalties increase</span>
+			</div>
+			<div class="field">
+				<label for="graph">Graph</label>
+				<input id="graph" type="checkbox" />
+				<span>Show a sparkline graph of historical royalty snapshots</span>
+			</div>
+			<div class="field">
+				<label for="button">&nbsp;</label>
+				<button id="save">Save</button>
+				<button id="reset">Reset History</button>
+			</div>
+			<div class="field">
+				<label for="status">&nbsp;</label>
+				<div class="status"></div>
+			</div>
+			<textarea></textarea>
+		</div>
+		<script src="./options.js"></script>
+	</body>
+</html>

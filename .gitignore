@@ -1,0 +1,11 @@
+.DS_Store
+*node_modules
+*npm-debug*
+report/
+coverage/*
+public/*
+client/spec/test-index.js
+_spec-tmp/*
+config.json
+jsconfig.json
+launch.json

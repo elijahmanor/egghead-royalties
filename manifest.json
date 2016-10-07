@@ -1,0 +1,30 @@
+{
+  "name": "egghead.io Royalties",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "description": "Keep track of your egghead.io royalties for this month!",
+  "homepage_url": "http://egghead.io",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "default_locale": "en",
+  "background": {
+    "scripts": [
+      "src/background/background.js"
+    ],
+    "persistent": true
+  },
+  "options_page": "src/options/index.html",
+  "browser_action": {
+    "default_icon": "icons/icon19.png",
+    "default_title": "egghead.io Royalties",
+    "default_popup": "src/popup/index.html"
+  },
+  "permissions": [
+    "tts",
+    "notifications",
+    "https://egghead.io/*"
+  ]
+}
