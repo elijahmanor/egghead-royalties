@@ -101,6 +101,7 @@ function valueDifference( before, after ) {
 
 function abbreviateNumber( value ) {
 	if ( value < 1000 ) { return "" + value; }
+	value = parseInt(value.replace(/(\$|,)/g, ''));
 	var suffixes = ["", "k", "m", "b", "t"];
 	var suffixNum = Math.floor( ( "" + value ).length / 3 );
 	var shortValue = parseFloat( ( suffixNum !== 0 ?
