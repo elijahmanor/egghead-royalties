@@ -15,21 +15,6 @@ function refresh() {
 			document.getElementById( "popup" ).innerHTML = royalties.error;
 			return;
 		}
-		/*
-		avatar_url: response.avatar_url,
-		full_name: response.full_name,
-		previous: previous,
-		revenue: revenue,
-		minutes: minutes,
-		difference: difference,
-		pending_lessons: response.pending_lessons,
-		submitted_lessons: response.submitted_lessons,
-		claimed_lessons: response.claimed_lessons,
-		reviewing_lessons: response.reviewing_lessons,
-		approved_lessons: response.approved_lessons,
-		published_lessons: response.published_lessons,
-		published_courses: response.published_courses
-		*/
 		const currency = royalties.revenue.toLocaleString( "en-US", { style: "currency", currency: "USD" } );
 		const previousMonths = royalties.months.reduce( function( memo, month, index, array ) {
 			if ( index !== array.length - 1 ) {
