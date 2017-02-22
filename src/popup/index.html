@@ -2,21 +2,21 @@
 <html class="loading">
 	<head>
 		<meta charset="utf-8" />
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
 		<style type="text/css">
-			html { background-color: #2d2d39; color: white; }
+			html { background-color: #2d2d39; color: white; width: 425px; min-height: 350px; }
 			.loading #popup {
 				visibility: hidden;
 				opacity: 0;
 			}
-			#popup {
-				padding: 10px;
-				height: 260px;
-				width: 400px;
+			.Egghead {
+				padding: 0.75rem;
 				font-family: Helvetica, Ubuntu, Arial, sans-serif;
 				display: flex;
-				flex-direction: column;
-				align-items: center;
-				text-align: center;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: flex-start;
+				justify-content: space-around;
 				visibility: visible;
 				opacity: 1;
 				transition: opacity 0.3s linear;
@@ -26,25 +26,86 @@
 				background-repeat: no-repeat;
 				background-position: center;
 			}
-			.hero .title {
-				font-size: 28px;
-				margin-bottom: 10px;
+			.Egghead-profile {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				margin-bottom: 0.5rem;
 			}
-			.row { font-size: 20px; }
-			p { color: #b7b7b7; margin-bottom: 0; padding-bottom: 0; }
-			.avatar {
-				width: 140px;
+			.Egghead-name {
+				font-size: 20px;
+				margin-bottom: 10px;
+				color: #646e7b;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				max-width: 150px;
+			}
+			.Egghead-avatar {
+				width: 100px;
 				border: 2px solid black;
 				border-radius: 50%;
 			}
-			strong { color: #6fab4a; }
-			.hero-bottom-link, .custom-btn { display: none; }
-			*[hidden] { display: none; }
-			.sparkline--empty canvas { display: none !important; }
+			.Egghead-stats {
+				margin-bottom: 0.5rem;
+			}
+			.Egghead-header {
+				font-size: 20px;
+				color: #fff;
+				margin: 0.5rem 0;
+			}
+			.Egghead-header:first-of-type {
+				margin-top: 0;
+			}
+			.Egghead-royalties {
+				color: #add960;
+				list-style-type: none;
+				padding-left: 0.5rem;
+				margin: 0.5rem 0;
+				font-size: 16px;
+				margin-bottom: 0.5rem;
+			}
+			.Egghead-lessons {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-around;
+			}
+			.Egghead-lesson {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			.Egghead-lessonType {
+				margin-bottom: 0.5rem;
+			}
+			.Egghead-count {
+				font-size: 12px;
+				background-color: #646e7b;
+				border-radius: 15px;
+				color: #fff;
+				display: inline-block;
+				padding: 5px;
+				min-width: 15px;
+				text-align: center;
+			}
+			.sparkline--empty canvas, .variance--empty canvas { display: none !important; }
+			.sparkline canvas { margin-bottom: 0.25rem; }
 			.sparkline canvas {
 				left: 50%;
 				position: relative;
 				transform: translateX(-50%);
+			}
+			.variance {
+				height: 48px;
+				display: inline-block;
+				width: 100%;
+				position: relative;
+			}
+			.variance canvas {
+				position: absolute;
+				right: 3em;
 			}
 			.options { position: absolute; left: 10px; top: 10px; cursor: pointer; }
 			.tooltip-class { background-color: red; }
@@ -56,6 +117,7 @@
 		<div id="popup"></div>
 		<textarea></textarea>
 		<span class="sparkline"></span>
+		<span class="variance"></span>
 		<script src="./jquery.min.js"></script>
 		<script src="./jquery.sparkline.min.js"></script>
 		<script src="./popup.js"></script>
