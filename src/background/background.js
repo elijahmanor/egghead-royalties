@@ -9,6 +9,7 @@ if ( !localStorage[ "sound" ] ) { localStorage[ "sound" ] = true; }
 if ( !localStorage[ "graph" ] ) { localStorage[ "graph" ] = true; }
 if ( !localStorage[ "history" ] ) { localStorage[ "history" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "variance" ] ) { localStorage[ "variance" ] = JSON.stringify( [] ); }
+if ( !localStorage[ "minutes" ] ) { localStorage[ "minutes" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "badge" ] ) { localStorage[ "badge" ] = true; }
 
 getRoyalties();
@@ -31,9 +32,26 @@ function getRoyalties( callback ) {
 	xhr.send();
 }
 
-function getHistory() { return JSON.parse( localStorage[ "history" ] ); }
+function getHistory() {
+	var history = JSON.parse( localStorage[ "history" ] );
+	return history.map( function( value ) {
+		return parseFloat( value );
+	} );
+}
 
-function getVariance() { return JSON.parse( localStorage[ "variance" ] ).slice( -58 ); }
+function getVariance() {
+	var variance = JSON.parse( localStorage[ "variance" ] );
+	return variance.map( function( value ) {
+		return parseFloat( value );
+	} );
+}
+
+function getMinutes() {
+	var minutes = JSON.parse( localStorage[ "minutes" ] );
+	return minutes.map( function( value ) {
+		return parseFloat( value );
+	} );
+}
 
 function pushHistory( value ) {
 	var history = getHistory();
@@ -45,6 +63,12 @@ function pushVariance( value ) {
 	var variance = JSON.parse( localStorage[ "variance" ] );
 	variance.push( value );
 	localStorage[ "variance" ] = JSON.stringify( variance );
+}
+
+function pushMinutes( value ) {
+	var minutes = JSON.parse( localStorage[ "minutes" ] );
+	minutes.push( value );
+	localStorage[ "minutes" ] = JSON.stringify( minutes );
 }
 
 function handleRoyalties( response, callback ) {
@@ -81,6 +105,9 @@ function handleRoyalties( response, callback ) {
 		months: response.revenue
 	};
 	pushVariance( difference.toFixed( 2 ) );
+	pushMinutes( minutes );
+
+	//pushRoyalties( { revenue, difference, minutes } );
 	update( envelope );
 
 	if ( callback ) { callback( envelope ) };

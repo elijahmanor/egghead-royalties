@@ -65,5 +65,6 @@ document.addEventListener( "DOMContentLoaded", function() {
 	document.getElementById( "reset" ).addEventListener( "click", function() {
 		localStorage[ "history" ] = JSON.stringify( [] );
 		localStorage[ "variance" ] = JSON.stringify( [] );
+		localStorage[ "minutes" ] = JSON.stringify( [] );
 	} );
 }, false );
