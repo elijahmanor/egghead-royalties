@@ -72,41 +72,113 @@ function refresh() {
 `;
 		document.getElementById( "popup" ).innerHTML = markup;
 		if ( localStorage[ "graph" ] === "true" ) {
-			generateSparkline();
+			buildGraph();
 		}
 	} );
 }
 
-function generateSparkline() {
-	var history = background.getHistory().map( function( value ) {
-		return parseFloat( value );
-	} );
+function getMinimum( values ) {
+	var min = Math.min.apply( null, values );
+	var max = Math.max.apply( null, values );
+	return min - ( ( max - min ) * 0.05 );
+}
 
-	document.querySelector( ".sparkline" ).classList.toggle( "sparkline--empty", history.length <= 1 );
-	$( ".sparkline" ).sparkline( history, {
-		height: "48px",
-		width: "350px",
-		lineColor: "#fff",
-		fillColor: "#b7b7b7",
-		spotColor: "#5183b4",
-		spotRadius: 5,
-		minSpotColor: "#da573b",
-		maxSpotColor: "#6fab4a",
-		highlightSpotColor: "#f5f",
-		highlightLineColor: "#f22",
-	} );
-	//document.querySelector( "textarea" ).innerHTML = JSON.stringify( history, null, 2 );
+function buildGraph() {
+	var history = background.getHistory();
 
-	var variance = background.getVariance();
-	document.querySelector( ".variance" ).classList.toggle( "variance--empty", variance.length <= 1 );
-	$( ".variance" ).sparkline( variance, {
-		type: "bar",
-		barColor: "#6fab4a",
-		negBarColor: "#da573b",
-		barWidth: "5",
-		zeroColor: "#ffffff",
-		height: "48px",
-		width: "350px"
+	history.revenue = {
+		revenue: history.revenue,
+		min: getMinimum( history.revenue )
+	};
+
+	var data = {
+		revenue: history.map( item => ([ new Date(item.epoch), item.revenue ]) ),
+		minutes: history.map( item => ([ new Date(item.epoch), item.minutes ]) ),
+		variation: history.map( item => ([ new Date(item.epoch), item.variation ]) )
+	};
+	document.querySelector( "textarea" ).innerHTML = JSON.stringify( data, null, 2 );
+
+	Highcharts.setOptions( {
+		lang: { thousandsSep: ',' },
+		global: { useUTC: false }
 	} );
-	//document.querySelector( "textarea" ).innerHTML = variance.length;
+	Highcharts.chart( "container", {
+		//         green      blue       red
+		colors: [ "#add960", "#009DCF", "#DA573B", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee", "#55BF3B", "#DF5353", "#7798BF", "#aaeeee" ],
+		chart: {
+			backgroundColor: "#2d2d39",
+			plotBorderColor: "#606063",
+			zoomType: "xy"
+		},
+		title: null,
+		xAxis: [ {
+				type: "datetime",
+				dateTimeLabelFormats: {
+						month: '%e. %b',
+						year: '%b',
+						hour: '%I %p',
+						minute: '%I:%M %p'
+				},
+				crosshair: true,
+				labels: { enabled: true, format: "{value:%b %d}" }
+		} ],
+		yAxis: [ {
+				visible: false,
+				title: { enabled: false },
+				opposite: true
+		}, {
+				gridLineWidth: 0,
+				visible: false,
+				title: { enabled: false },
+				min: history.min
+		}, {
+				gridLineWidth: 0,
+				visible: false,
+				title: { enabled: false }, 
+				opposite: true
+		} ],
+		tooltip: {
+			shared: true,
+			xDateFormat: "%b %d, %Y %I:%M %p",
+			formatter: function() {
+				let s = `<b>${ ( new Date( this.x ) ).toLocaleString() }</b>`;
+
+				this.points.forEach( ( point, i ) => {
+					debugger;
+					s += '<br/><span style="color:' + point.series.color + '">\u25CF</span> ' + point.series.name + ": ";
+					s += ( i === 1 ) ? `${ point.y.toLocaleString() }` : `${ point.y.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) }`;
+				} );
+
+				return s;
+			},
+		}, 
+		legend: {
+			enabled: true,
+			itemStyle: { color: "#fff", fontWeight: "normal" },
+			itemHoverStyle: { color: "#fff", fontWeight: "bold" }
+		},
+		series: [ {
+				name: "Royalties",
+				type: "line", //spline",
+				yAxis: 1,
+				marker: { enabled: false },
+				data: history.map( item => [ item.epoch, item.revenue ] ),
+				tooltip: { valuePrefix: "$" }
+		}, {
+				name: "Minutes",
+				type: "line", //spline",
+				yAxis: 2,
+				data: history.map( item => [ item.epoch, item.minutes ] ),
+				marker: { enabled: false },
+				tooltip: { valueSuffix: " mins" },
+				lineWidth: 3
+		}, {
+				name: "Variation",
+				type: "line", //spline",
+				// dashStyle: "shortdot",
+				marker: { enabled: false },
+				data: history.map( item => [ item.epoch, item.variation ] ),
+				tooltip: { valuePrefix: "$" }
+		} ]
+	});
 }

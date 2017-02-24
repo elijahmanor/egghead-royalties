@@ -9,6 +9,7 @@ if ( !localStorage[ "sound" ] ) { localStorage[ "sound" ] = true; }
 if ( !localStorage[ "graph" ] ) { localStorage[ "graph" ] = true; }
 if ( !localStorage[ "history" ] ) { localStorage[ "history" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "variance" ] ) { localStorage[ "variance" ] = JSON.stringify( [] ); }
+if ( !localStorage[ "minutes" ] ) { localStorage[ "minutes" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "badge" ] ) { localStorage[ "badge" ] = true; }
 
 getRoyalties();
@@ -31,20 +32,15 @@ function getRoyalties( callback ) {
 	xhr.send();
 }
 
-function getHistory() { return JSON.parse( localStorage[ "history" ] ); }
-
-function getVariance() { return JSON.parse( localStorage[ "variance" ] ).slice( -58 ); }
-
-function pushHistory( value ) {
-	var history = getHistory();
-	history.push( value );
-	localStorage[ "history" ] = JSON.stringify( history );
+function getHistory() {
+	return JSON.parse( localStorage[ "history" ] );
 }
 
-function pushVariance( value ) {
-	var variance = JSON.parse( localStorage[ "variance" ] );
-	variance.push( value );
-	localStorage[ "variance" ] = JSON.stringify( variance );
+function pushHistory( item ) {
+	var history = getHistory();
+	item.epoch = +new Date();
+	history.push( item );
+	localStorage[ "history" ] = JSON.stringify( history );
 }
 
 function handleRoyalties( response, callback ) {
@@ -59,18 +55,17 @@ function handleRoyalties( response, callback ) {
 	var revenue = currentMonth.revenue; 
 	var minutes = currentMonth.minutes_watched;
 	var previous = localStorage[ "previous" ] || 0;
-	var envelope = { previous: previous, difference: 0, value: 0 };
+	var envelope = { previous: previous, variation: 0, value: 0 };
 
 	localStorage[ "previous" ] = revenue;
-	pushHistory( revenue.toFixed( 2 ) );
-	var difference = revenue - previous;
+	var variation = revenue - previous;
 	envelope = {
 		avatar_url: response.avatar_url,
 		full_name: response.full_name,
 		previous: previous,
 		revenue: revenue,
 		minutes: minutes,
-		difference: difference,
+		variation: variation,
 		pending_lessons: response.pending_lessons,
 		submitted_lessons: response.submitted_lessons,
 		claimed_lessons: response.claimed_lessons,
@@ -80,7 +75,9 @@ function handleRoyalties( response, callback ) {
 		published_courses: response.published_courses,
 		months: response.revenue
 	};
-	pushVariance( difference.toFixed( 2 ) );
+
+	pushHistory( { revenue, minutes, variation } );
+
 	update( envelope );
 
 	if ( callback ) { callback( envelope ) };
@@ -88,12 +85,12 @@ function handleRoyalties( response, callback ) {
 
 function update( royalties ) {
 	updateBadge( royalties );
-	if ( royalties.difference >= parseFloat( localStorage[ "threshold" ] ) ) {
-		var difference = royalties.difference.toLocaleString( "en-US", { style: "currency", currency: "USD" } );
-		difference = royalties.difference > 0 ? "+" + difference : difference;
+	if ( royalties.variation >= parseFloat( localStorage[ "threshold" ] ) ) {
+		var variation = royalties.variation.toLocaleString( "en-US", { style: "currency", currency: "USD" } );
+		variation = royalties.variation > 0 ? "+" + variation : variation;
 
 		if ( localStorage[ "notify" ] === "true" ) {
-			notify( "🌟 " + royalties.revenue.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) + " (" + difference + ")" );
+			notify( "🌟 " + royalties.revenue.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) + " (" + variation + ")" );
 		}
 
 		if ( localStorage[ "sound" ] === "true" ) {
@@ -114,12 +111,12 @@ function loadingBadge() {
 }
 
 function updateBadge( royalties ) {
-	var title = royalties.difference > 0 ?
-		"+$" + royalties.difference.toFixed( 2 ) :
-		"$" + royalties.difference.toFixed( 2 ); 
+	var title = royalties.variation > 0 ?
+		"+$" + royalties.variation.toFixed( 2 ) :
+		"$" + royalties.variation.toFixed( 2 ); 
 	chrome.browserAction.setTitle({ title: title });
 	if ( localStorage[ "badge" ] === "true" ) {
-		if ( royalties.difference > 0 ) {
+		if ( royalties.variation > 0 ) {
 			chrome.browserAction.setBadgeBackgroundColor({ color: "#449d44" });
 		} else {
 			chrome.browserAction.setBadgeBackgroundColor({ color: "#5e5e5e" });
