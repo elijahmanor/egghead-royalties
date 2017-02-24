@@ -27,7 +27,15 @@ document.addEventListener( "DOMContentLoaded", function() {
 		element: document.getElementById( "badge" ),
 		value: localStorage[ "badge" ]
 	};
-
+	var historySince = {
+		element: document.getElementById( "historySince" ),
+		value: localStorage[ "historySince" ]
+	};
+	var blurValues = {
+		element: document.getElementById( "blurValues" ),
+		value: localStorage[ "blurValues" ]
+	};
+	
 	var background = chrome.extension.getBackgroundPage();
 
 	resource.element.value = resource.value;
@@ -37,6 +45,8 @@ document.addEventListener( "DOMContentLoaded", function() {
 	sound.element.checked = sound.value === "true";
 	graph.element.checked = graph.value === "true";
 	badge.element.checked = badge.value === "true";
+	historySince.element.valueAsDate = historySince.value ? new Date( parseInt( historySince.value ) ) : null;
+	blurValues.element.checked = blurValues.value === "true";
 
 	document.querySelector( "textarea" ).innerHTML = JSON.stringify( {
 		resource: resource.value,
@@ -44,10 +54,12 @@ document.addEventListener( "DOMContentLoaded", function() {
 		threshold: threshold.value,
 		notify: notify.value,
 		sound: sound.value,
-		graph: graph.value
+		graph: graph.value,
+		historySince: historySince.value,
+		blurValues: blurValues.value
 	}, null, 2 );
 
-	document.querySelector( "textarea" ).innerHTML = JSON.stringify( JSON.parse( localStorage[ "history" ] ), null, 2 );
+	// document.querySelector( "textarea" ).innerHTML = JSON.stringify( JSON.parse( localStorage[ "history" ] ), null, 2 );
 	// localStorage[ "history" ] = JSON.stringify();
 
 	document.getElementById( "save" ).addEventListener( "click", function() {
@@ -58,6 +70,8 @@ document.addEventListener( "DOMContentLoaded", function() {
 		localStorage[ "notify" ] = notify.element.checked;
 		localStorage[ "graph" ] = graph.element.checked;
 		localStorage[ "badge" ] = badge.element.checked;
+		localStorage[ "blurValues" ] = blurValues.element.checked;
+		localStorage[ "historySince" ] = historySince.element.value ? +moment( historySince.element.value ).toDate() : null;
 		background.getRoyalties();
 		document.querySelector( ".status" ).innerHTML = "Changes have been saved!";
 	} );
@@ -67,4 +81,5 @@ document.addEventListener( "DOMContentLoaded", function() {
 		localStorage[ "variance" ] = JSON.stringify( [] );
 		localStorage[ "minutes" ] = JSON.stringify( [] );
 	} );
+
 }, false );

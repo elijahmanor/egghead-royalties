@@ -90,6 +90,16 @@
 				min-width: 15px;
 				text-align: center;
 			}
+			.Egghead--blur .Egghead-currency,
+			.Egghead--blur .Egghead-minutes,
+			.Egghead--blur .Egghead-variation {
+				color: transparent;
+				text-shadow: 0 0 10px rgba(173, 217, 96, 0.5);
+			}
+			.Egghead-secret {
+				color: transparent;
+				text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+			}
 			.sparkline--empty canvas, .variance--empty canvas { display: none !important; }
 			.sparkline canvas { margin-bottom: 0.25rem; }
 			.sparkline canvas {
@@ -111,18 +121,13 @@
 			.tooltip-class { background-color: red; }
 			textarea { display: none; width: 100%; height: 100px; }
 			.highcharts-credits { display: none; }
-			/*#container { box-shadow: 0 0 5px #616E7B; }*/
 		</style>
 	</head>
 	<body>
 		<div class="options" title="Options">⚙</div>
 		<div id="popup"></div>
 		<textarea></textarea>
-		<!--<span class="sparkline"></span>
-		<span class="variance"></span>-->
 		<div id="container" style="min-width: 400px; height: 200px; margin: 0 auto"></div>
-		<script src="./jquery.min.js"></script>
-		<script src="./jquery.sparkline.min.js"></script>
 		<script src="./popup.js"></script>
 		<script src="./highcharts.js"></script>
 	</body>
