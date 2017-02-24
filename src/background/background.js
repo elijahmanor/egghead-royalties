@@ -33,42 +33,14 @@ function getRoyalties( callback ) {
 }
 
 function getHistory() {
-	var history = JSON.parse( localStorage[ "history" ] );
-	return history.map( function( value ) {
-		return parseFloat( value );
-	} );
+	return JSON.parse( localStorage[ "history" ] );
 }
 
-function getVariance() {
-	var variance = JSON.parse( localStorage[ "variance" ] );
-	return variance.map( function( value ) {
-		return parseFloat( value );
-	} );
-}
-
-function getMinutes() {
-	var minutes = JSON.parse( localStorage[ "minutes" ] );
-	return minutes.map( function( value ) {
-		return parseFloat( value );
-	} );
-}
-
-function pushHistory( value ) {
+function pushHistory( item ) {
 	var history = getHistory();
-	history.push( value );
+	item.epoch = +new Date();
+	history.push( item );
 	localStorage[ "history" ] = JSON.stringify( history );
-}
-
-function pushVariance( value ) {
-	var variance = JSON.parse( localStorage[ "variance" ] );
-	variance.push( value );
-	localStorage[ "variance" ] = JSON.stringify( variance );
-}
-
-function pushMinutes( value ) {
-	var minutes = JSON.parse( localStorage[ "minutes" ] );
-	minutes.push( value );
-	localStorage[ "minutes" ] = JSON.stringify( minutes );
 }
 
 function handleRoyalties( response, callback ) {
@@ -83,18 +55,17 @@ function handleRoyalties( response, callback ) {
 	var revenue = currentMonth.revenue; 
 	var minutes = currentMonth.minutes_watched;
 	var previous = localStorage[ "previous" ] || 0;
-	var envelope = { previous: previous, difference: 0, value: 0 };
+	var envelope = { previous: previous, variation: 0, value: 0 };
 
 	localStorage[ "previous" ] = revenue;
-	pushHistory( revenue.toFixed( 2 ) );
-	var difference = revenue - previous;
+	var variation = revenue - previous;
 	envelope = {
 		avatar_url: response.avatar_url,
 		full_name: response.full_name,
 		previous: previous,
 		revenue: revenue,
 		minutes: minutes,
-		difference: difference,
+		variation: variation,
 		pending_lessons: response.pending_lessons,
 		submitted_lessons: response.submitted_lessons,
 		claimed_lessons: response.claimed_lessons,
@@ -104,10 +75,9 @@ function handleRoyalties( response, callback ) {
 		published_courses: response.published_courses,
 		months: response.revenue
 	};
-	pushVariance( difference.toFixed( 2 ) );
-	pushMinutes( minutes );
 
-	//pushRoyalties( { revenue, difference, minutes } );
+	pushHistory( { revenue, minutes, variation } );
+
 	update( envelope );
 
 	if ( callback ) { callback( envelope ) };
@@ -115,12 +85,12 @@ function handleRoyalties( response, callback ) {
 
 function update( royalties ) {
 	updateBadge( royalties );
-	if ( royalties.difference >= parseFloat( localStorage[ "threshold" ] ) ) {
-		var difference = royalties.difference.toLocaleString( "en-US", { style: "currency", currency: "USD" } );
-		difference = royalties.difference > 0 ? "+" + difference : difference;
+	if ( royalties.variation >= parseFloat( localStorage[ "threshold" ] ) ) {
+		var variation = royalties.variation.toLocaleString( "en-US", { style: "currency", currency: "USD" } );
+		variation = royalties.variation > 0 ? "+" + variation : variation;
 
 		if ( localStorage[ "notify" ] === "true" ) {
-			notify( "🌟 " + royalties.revenue.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) + " (" + difference + ")" );
+			notify( "🌟 " + royalties.revenue.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) + " (" + variation + ")" );
 		}
 
 		if ( localStorage[ "sound" ] === "true" ) {
@@ -141,12 +111,12 @@ function loadingBadge() {
 }
 
 function updateBadge( royalties ) {
-	var title = royalties.difference > 0 ?
-		"+$" + royalties.difference.toFixed( 2 ) :
-		"$" + royalties.difference.toFixed( 2 ); 
+	var title = royalties.variation > 0 ?
+		"+$" + royalties.variation.toFixed( 2 ) :
+		"$" + royalties.variation.toFixed( 2 ); 
 	chrome.browserAction.setTitle({ title: title });
 	if ( localStorage[ "badge" ] === "true" ) {
-		if ( royalties.difference > 0 ) {
+		if ( royalties.variation > 0 ) {
 			chrome.browserAction.setBadgeBackgroundColor({ color: "#449d44" });
 		} else {
 			chrome.browserAction.setBadgeBackgroundColor({ color: "#5e5e5e" });

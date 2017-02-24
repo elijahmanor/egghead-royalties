@@ -85,16 +85,22 @@ function getMinimum( values ) {
 
 function buildGraph() {
 	var history = background.getHistory();
-	history = {
-		data: history,
-		min: getMinimum( history )
+
+	history.revenue = {
+		revenue: history.revenue,
+		min: getMinimum( history.revenue )
 	};
-	var variance = background.getVariance();
-	var minutes = background.getMinutes();
-	//document.querySelector( "textarea" ).innerHTML = JSON.stringify( history, null, 2 );
+
+	var data = {
+		revenue: history.map( item => ([ new Date(item.epoch), item.revenue ]) ),
+		minutes: history.map( item => ([ new Date(item.epoch), item.minutes ]) ),
+		variation: history.map( item => ([ new Date(item.epoch), item.variation ]) )
+	};
+	document.querySelector( "textarea" ).innerHTML = JSON.stringify( data, null, 2 );
 
 	Highcharts.setOptions( {
-		lang: { thousandsSep: ',' }
+		lang: { thousandsSep: ',' },
+		global: { useUTC: false }
 	} );
 	Highcharts.chart( "container", {
 		//         green      blue       red
@@ -106,25 +112,46 @@ function buildGraph() {
 		},
 		title: null,
 		xAxis: [ {
+				type: "datetime",
+				dateTimeLabelFormats: {
+						month: '%e. %b',
+						year: '%b',
+						hour: '%I %p',
+						minute: '%I:%M %p'
+				},
 				crosshair: true,
-				labels: { enabled: false }
-		}],
-		yAxis: [ { // Primary yAxis Variation green
+				labels: { enabled: true, format: "{value:%b %d}" }
+		} ],
+		yAxis: [ {
 				visible: false,
 				title: { enabled: false },
 				opposite: true
-		}, { // Secondary yAxis Royalties blue
+		}, {
 				gridLineWidth: 0,
 				visible: false,
 				title: { enabled: false },
 				min: history.min
-		}, { // Tertiary yAxis Minutes red
+		}, {
 				gridLineWidth: 0,
 				visible: false,
 				title: { enabled: false }, 
 				opposite: true
 		} ],
-		tooltip: { shared: true, headerFormat: "" },
+		tooltip: {
+			shared: true,
+			xDateFormat: "%b %d, %Y %I:%M %p",
+			formatter: function() {
+				let s = `<b>${ ( new Date( this.x ) ).toLocaleString() }</b>`;
+
+				this.points.forEach( ( point, i ) => {
+					debugger;
+					s += '<br/><span style="color:' + point.series.color + '">\u25CF</span> ' + point.series.name + ": ";
+					s += ( i === 1 ) ? `${ point.y.toLocaleString() }` : `${ point.y.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) }`;
+				} );
+
+				return s;
+			},
+		}, 
 		legend: {
 			enabled: true,
 			itemStyle: { color: "#fff", fontWeight: "normal" },
@@ -132,26 +159,25 @@ function buildGraph() {
 		},
 		series: [ {
 				name: "Royalties",
-				type: "spline", // "column",
+				type: "line", //spline",
 				yAxis: 1,
 				marker: { enabled: false },
-				data: history.data,
+				data: history.map( item => [ item.epoch, item.revenue ] ),
 				tooltip: { valuePrefix: "$" }
 		}, {
 				name: "Minutes",
-				type: "spline",
+				type: "line", //spline",
 				yAxis: 2,
-				data: minutes,
+				data: history.map( item => [ item.epoch, item.minutes ] ),
 				marker: { enabled: false },
-				// dashStyle: "shortdot",
 				tooltip: { valueSuffix: " mins" },
 				lineWidth: 3
 		}, {
 				name: "Variation",
-				type: "spline",
-				dashStyle: "shortdot",
+				type: "line", //spline",
+				// dashStyle: "shortdot",
 				marker: { enabled: false },
-				data: variance,
+				data: history.map( item => [ item.epoch, item.variation ] ),
 				tooltip: { valuePrefix: "$" }
 		} ]
 	});
