@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 	<head>
+		<link href="./chosen.css" rel="stylesheet" type="text/css" />
 		<style type="text/css">
 			html { background-color: #2d2d39; color: white; margin: 1em; }
 			.hero { margin-bottom: 2em; }
@@ -12,10 +13,12 @@
 				text-indent: 180px;
 			}
 			.field { font-size: 20px; margin-bottom: 1em; }
-			.field label { width: 175px; display: inline-block; }
-			.field span { color: #b7b7b7; display: block; margin-left: 180px; font-style: italic; font-size: 16px; }
-			.field input, .field button { font-size: 20px; margin-bottom: 0.5em; }
+			.field > label { width: 175px; display: inline-block; vertical-align: top; }
+			.field > span { color: #b7b7b7; display: block; margin-left: 180px; font-style: italic; font-size: 16px; }
+			.field > input,
+			.field > button { font-size: 20px; margin-bottom: 0.5em; }
 			.status { display: inline-block; color: #6fab4a; }
+			.field > input { width: 300px; }
 			textarea { display: none; width: 300px; height: 100px; }
 		</style>
 	</head>
@@ -58,6 +61,16 @@
 				<span>Show a sparkline graph of historical royalty snapshots</span>
 			</div>
 			<div class="field">
+				<label for="graph">History Since</label>
+				<input type="date" name="date" id="historySince" />
+				<span>Only show history information in graph since this date</span>
+			</div>
+			<div class="field">
+				<label for="blurValues">Blur Values</label>
+				<input id="blurValues" type="checkbox" />
+				<span>Blur the royalty values in the popup</span>
+			</div>
+			<div class="field">
 				<label for="button">&nbsp;</label>
 				<button id="save">Save</button>
 				<button id="reset">Reset History</button>
@@ -68,6 +81,7 @@
 			</div>
 			<textarea></textarea>
 		</div>
+		<script src="./moment.js"></script>
 		<script src="./options.js"></script>
 	</body>
 </html>

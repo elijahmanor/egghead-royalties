@@ -23,9 +23,10 @@ function refresh() {
 			}
 			return memo;
 		}, { minutes: 0, revenue: 0 } );
+		const classes = localStorage[ "blurValues" ] === "true" ? "Egghead--blur" : "";
 		const markup =
 `
-<div class="Egghead">
+<div class="Egghead ${ classes }">
   <div class="Egghead-profile">
     <img class="Egghead-avatar" src="${ royalties.avatar_url }" />
     <h1 class="Egghead-name">${ royalties.full_name }</h1>
@@ -33,13 +34,13 @@ function refresh() {
   <div class="Egghead-stats">
     <h3 class="Egghead-header">Estimated royalties</h3>
     <ul class="Egghead-royalties">
-      <li><i class="fa fa-fw fa-money"></i> ${ currency }</li>
-      <li><i class="fa fa-fw fa-clock-o"></i> ${ royalties.minutes.toLocaleString() } mins watched</li>
+      <li><i class="fa fa-fw fa-money"></i> <span class="Egghead-currency">${ currency }</span></li>
+      <li><i class="fa fa-fw fa-clock-o"></i> <span class="Egghead-minutes">${ royalties.minutes.toLocaleString() }</span> mins watched</li>
     </ul>
     <h3 class="Egghead-header">Previous 5 months</h3>
     <ul class="Egghead-royalties">
-      <li><i class="fa fa-fw fa-money"></i> ${ previousMonths.revenue.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) }</li>
-      <li><i class="fa fa-fw fa-clock-o"></i> ${ previousMonths.minutes.toLocaleString() } mins watched</li>
+      <li><i class="fa fa-fw fa-money"></i> <span class="Egghead-currency">${ previousMonths.revenue.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) }</span></li>
+      <li><i class="fa fa-fw fa-clock-o"></i> <span class="Egghead-minutes">${ previousMonths.minutes.toLocaleString() }</span> mins watched</li>
     </ul>
   </div>
   <div class="Egghead-lessons">
@@ -86,6 +87,12 @@ function getMinimum( values ) {
 function buildGraph() {
 	var history = background.getHistory();
 
+	var historySince = localStorage[ "historySince" ];
+	if ( historySince !== "null" ) {
+		historySince = new Date( parseInt( historySince ) );
+		history = history.filter( stamp => new Date( stamp.epoch ) >= historySince );
+	}
+
 	history.revenue = {
 		revenue: history.revenue,
 		min: getMinimum( history.revenue )
@@ -99,25 +106,33 @@ function buildGraph() {
 	document.querySelector( "textarea" ).innerHTML = JSON.stringify( data, null, 2 );
 
 	Highcharts.setOptions( {
-		lang: { thousandsSep: ',' },
+		lang: { thousandsSep: "," },
 		global: { useUTC: false }
 	} );
 	Highcharts.chart( "container", {
-		//         green      blue       red
 		colors: [ "#add960", "#009DCF", "#DA573B", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee", "#55BF3B", "#DF5353", "#7798BF", "#aaeeee" ],
 		chart: {
 			backgroundColor: "#2d2d39",
 			plotBorderColor: "#606063",
-			zoomType: "xy"
+			zoomType: "x",
+			resetZoomButton: {
+					position: {
+							align: "left",
+							verticalAlign: "bottom",
+							x: 10,
+							y: -75
+					},
+					relativeTo: "chart"
+			}
 		},
 		title: null,
 		xAxis: [ {
 				type: "datetime",
 				dateTimeLabelFormats: {
-						month: '%e. %b',
-						year: '%b',
-						hour: '%I %p',
-						minute: '%I:%M %p'
+						month: "%e. %b",
+						year: "%b",
+						hour: "%I %p",
+						minute: "%I:%M %p"
 				},
 				crosshair: true,
 				labels: { enabled: true, format: "{value:%b %d}" }
@@ -140,13 +155,16 @@ function buildGraph() {
 		tooltip: {
 			shared: true,
 			xDateFormat: "%b %d, %Y %I:%M %p",
+			useHTML: true,
 			formatter: function() {
 				let s = `<b>${ ( new Date( this.x ) ).toLocaleString() }</b>`;
+				const classes = localStorage[ "blurValues" ] === "true" ? "Egghead-secret" : "";
 
 				this.points.forEach( ( point, i ) => {
-					debugger;
 					s += '<br/><span style="color:' + point.series.color + '">\u25CF</span> ' + point.series.name + ": ";
-					s += ( i === 1 ) ? `${ point.y.toLocaleString() }` : `${ point.y.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) }`;
+					s += ( i === 1 ) ?
+						`<span class="${ classes }">${ point.y.toLocaleString() }</span>` :
+						`<span class="${ classes }">${ point.y.toLocaleString( "en-US", { style: "currency", currency: "USD" } ) }</span>`;
 				} );
 
 				return s;

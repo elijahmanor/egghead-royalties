@@ -8,9 +8,11 @@ if ( !localStorage[ "notify" ] ) { localStorage[ "notify" ] = true; }
 if ( !localStorage[ "sound" ] ) { localStorage[ "sound" ] = true; }
 if ( !localStorage[ "graph" ] ) { localStorage[ "graph" ] = true; }
 if ( !localStorage[ "history" ] ) { localStorage[ "history" ] = JSON.stringify( [] ); }
+if ( !localStorage[ "historySince" ] ) { localStorage[ "historySince" ] = "null"; }
 if ( !localStorage[ "variance" ] ) { localStorage[ "variance" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "minutes" ] ) { localStorage[ "minutes" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "badge" ] ) { localStorage[ "badge" ] = true; }
+if ( !localStorage[ "blurValues" ] ) { localStorage[ "blurValues" ] = false; }
 
 getRoyalties();
 
@@ -33,7 +35,8 @@ function getRoyalties( callback ) {
 }
 
 function getHistory() {
-	return JSON.parse( localStorage[ "history" ] );
+	const history = JSON.parse( localStorage[ "history" ] );
+	return history;
 }
 
 function pushHistory( item ) {
