@@ -93,6 +93,10 @@ function buildGraph() {
 		history = history.filter( stamp => new Date( stamp.epoch ) >= historySince );
 	}
 
+	if ( history && history.length ) {
+		history[ 0 ].variation = 0;
+	}
+
 	history.revenue = {
 		revenue: history.revenue,
 		min: getMinimum( history.revenue )
