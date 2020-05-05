@@ -11,6 +11,7 @@ if ( !localStorage[ "history" ] ) { localStorage[ "history" ] = JSON.stringify( 
 if ( !localStorage[ "historySince" ] ) { localStorage[ "historySince" ] = "null"; }
 if ( !localStorage[ "variance" ] ) { localStorage[ "variance" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "minutes" ] ) { localStorage[ "minutes" ] = JSON.stringify( [] ); }
+if ( !localStorage[ "months" ] ) { localStorage[ "months" ] = JSON.stringify( [] ); }
 if ( !localStorage[ "badge" ] ) { localStorage[ "badge" ] = true; }
 if ( !localStorage[ "blurValues" ] ) { localStorage[ "blurValues" ] = false; }
 
@@ -26,11 +27,17 @@ function getRoyalties( callback ) {
 	xhr.open( "GET", "https://egghead.io/api/v1/instructors/" + resource, true );
 	xhr.onreadystatechange = function() {
 		if ( xhr.readyState == 4 ) {
-			var response = JSON.parse( xhr.response );
-			handleRoyalties( response, callback );
-			localStorage[ "timeout" ] = window.setTimeout( getRoyalties, parseInt( localStorage[ "interval" ] ) );
+			try {
+				var response = JSON.parse( xhr.response );
+				console.log( { response } );
+				handleRoyalties( response, callback );
+				localStorage[ "timeout" ] = window.setTimeout( getRoyalties, parseInt( localStorage[ "interval" ] ) );
+			} catch( error ) {
+				handleRoyalties( { error: `<p>${ error }</p><p>xhr.status: ${ xhr.status }</p><p>xhr.response: ${ xhr.response }` }, callback );
+			}
 		}
 	}
+	
 	xhr.send();
 }
 
@@ -69,17 +76,19 @@ function handleRoyalties( response, callback ) {
 		revenue: revenue,
 		minutes: minutes,
 		variation: variation,
-		pending_lessons: response.pending_lessons,
-		submitted_lessons: response.submitted_lessons,
-		claimed_lessons: response.claimed_lessons,
-		reviewing_lessons: response.reviewing_lessons,
-		approved_lessons: response.approved_lessons,
-		published_lessons: response.published_lessons,
-		published_courses: response.published_courses,
+		pending_lessons: response.pending_lessons || 0,
+		submitted_lessons: response.submitted_lessons || 0,
+		claimed_lessons: response.claimed_lessons || 0,
+		reviewing_lessons: response.reviewing_lessons || 0,
+		approved_lessons: response.approved_lessons || 0,
+		published_lessons: response.published_lessons || 0,
+		published_courses: response.published_courses || 0,
 		months: response.revenue
 	};
 
 	pushHistory( { revenue, minutes, variation } );
+	console.log( response );
+	localStorage[ "months" ] = JSON.stringify( response.revenue );
 
 	update( envelope );
 

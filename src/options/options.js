@@ -82,4 +82,38 @@ document.addEventListener( "DOMContentLoaded", function() {
 		localStorage[ "minutes" ] = JSON.stringify( [] );
 	} );
 
+	document.getElementById( "fix" ).addEventListener( "click", function() {
+		let history = JSON.parse( localStorage[ "history" ] );
+		let monthHasBadData = false;
+		let badDataMonth = null;
+		history = history.reduce( ( memo, item, index ) => {
+			let shouldKeepItem = true;
+			if ( index > 0 ) {
+				const previousItem = history[ index - 1 ];
+				const previousDate = new Date( previousItem.epoch );
+				const itemDate = new Date( item.epoch );
+
+				if ( previousDate.getMonth() === itemDate.getMonth() ) {
+					if ( previousItem.revenue !== 0 && item.revenue === 0 ) {
+						monthHasBadData = true;
+						badDataMonth = itemDate.getMonth();
+						shouldKeepItem = false;
+					} else if ( monthHasBadData && item.revenue === 0 ) {
+						shouldKeepItem = false;
+					} else if ( monthHasBadData && previousItem.revenue === 0 ) {
+						Object.assign( item, { variation: 0 } );
+					}
+				} else {
+					monthHasBadData = false;
+					badDataMonth = null;
+				}
+			}
+			if ( shouldKeepItem ) {
+				memo.push( item );
+			}
+			return memo;
+		}, [] );
+		localStorage[ "history" ] = JSON.stringify( history );
+	} );
+
 }, false );
